@@ -10,6 +10,11 @@ import (
 	"sync"
 )
 
+type Request struct {
+	Conn net.Conn
+	PathParms map[string]string
+}
+
 type HandlerFunction func(conn net.Conn)
 
 type Server struct {

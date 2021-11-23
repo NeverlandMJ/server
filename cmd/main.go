@@ -22,6 +22,9 @@ func main() {
 func execute(host string, port string) (err error) {
 	srv := server.NewServer(net.JoinHostPort(host, port))
 	
+	srv.Register("/payment/{id}",)
+
+
 	srv.Register("/", func(conn net.Conn) {
 		body := "Welcome to our web-site"
 
