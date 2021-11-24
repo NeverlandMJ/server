@@ -1,14 +1,20 @@
 package main
 
 import (
-	
+	"fmt"
+	"log"
 	"net"
-	"strconv"
-
 	"os"
+	"strconv"
 
 	"github.com/NeverlandMJ/http/pkg/server"
 )
+
+const header = "HTTP/1.1 200 OK\r\n" +
+	"Content-Length: %s\r\n" +
+	"Content-Type: %s\r\n" +
+	"Connection: close\r\n" +
+	"\r\n"
 
 func main() {
 	host := "0.0.0.0"
@@ -19,39 +25,47 @@ func main() {
 	}
 }
 
-func execute(host string, port string) (err error) {
+func execute(host, port string) (err error) {
 	srv := server.NewServer(net.JoinHostPort(host, port))
-	
-	srv.Register("/payment/{id}",)
 
+	srv.Register("/", func(req *server.Request) {
+		body := "Welcome to our website"
+		const header = "HTTP/1.1 200 OK\r\n" +
+			"Content-Length: %s\r\n" +
+			"Content-Type: %s\r\n" +
+			"Connection: close\r\n" +
+			"\r\n"
 
-	srv.Register("/", func(conn net.Conn) {
-		body := "Welcome to our web-site"
+		id := req.QueryParams["id"]
+		log.Println(id)
+		_, err = req.Conn.Write([]byte(fmt.Sprintf(header, strconv.Itoa(len(body)), "text/html") + body))
 
-		err = Body(body, conn)
 		if err != nil {
-			return
+			log.Println(err)
 		}
 	})
-	srv.Register("/about", func(conn net.Conn) {
-		body := "About Golang Academy"
-		
-		err = Body(body, conn)
+
+	srv.Register("/category{categoryID}/partners/{pID}", func(req *server.Request) {
+		body := "Welcome to our website"
+		const header = "HTTP/1.1 200 OK\r\n" +
+			"Content-Length: %s\r\n" +
+			"Content-Type: %s\r\n" +
+			"Connection: close\r\n" +
+			"\r\n"
+
+		categoryID := req.PathParams["categoryID"]
+		log.Println(categoryID)
+
+		pID := req.PathParams["pID"]
+		log.Println(pID)
+		log.Println(req.Headers)
+
+		_, err = req.Conn.Write([]byte(fmt.Sprintf(header, strconv.Itoa(len(body)), "text/html") + body))
+
 		if err != nil {
-			return
+			log.Println(err)
 		}
 	})
+
 	return srv.Start()
-}
-func  Body(body string, conn net.Conn) (err error) {
-	CRLF := "\r\n"
-	_, err = conn.Write([]byte(
-		"HTTP/1.1 200 Ok" + CRLF +
-			"Content-Length: " + strconv.Itoa(len(body)) + CRLF +
-			"Content-Type: text/html" + CRLF +
-			"Connection: close" + CRLF +
-			CRLF +
-			body,
-	))
-	return err
 }
